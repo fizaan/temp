@@ -1,0 +1,8 @@
+.ORIG x3000
+ADD	    R0, R1, #-16    ;translates to 0x10 0x70 in HEX
+ADD     R0, R0, #6      ;translates to 0x10 0x26 in HEX
+HALT
+.END
+
+;site: https://wchargin.github.io/lc3web/#
+;R0 will be FFF6 (-10) at the end of this program.
