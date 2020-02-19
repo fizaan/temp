@@ -1,0 +1,50 @@
+<html>
+	<head>
+		<title>Test Class</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.2.0/math.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
+		<script src="VM.js"></script>
+
+<script>
+	/*	
+		The ordering of below function calls matters.
+		Do not change!
+	*/
+
+	//called first
+	function load(event) {
+		cpu = new CPU();
+		cpu.load(event,setmemory);
+	}
+
+	//called second. This is a callback function. See load(event,callback)
+	function setmemory(x) {
+		var START_ADDRESS = 0x3000;
+		var endaddress = x.length;
+		cpu.bus.setImageSize(START_ADDRESS + endaddress);
+		for(var i = 0; i < endaddress; i++)
+			cpu.bus.getMemory()[START_ADDRESS+i] =	cpu.bus.swap16(x[i+1]);
+		vm = new vm(cpu.bus);
+		//cpu.bus.printMemory();
+	}
+
+	//called third
+	function run() {
+		vm.start();
+	}
+
+</script>
+
+
+
+    </head>
+    <body onload>
+		<script>
+			
+		</script>
+
+		<p> step 1: <input type="file" id = "mainfile" onchange='load(event)'/>
+			step 2: <input type = "button" value = "keep clicking me!" onclick = "run()">
+		</p>
+	</body>
+</html>    
