@@ -1,0 +1,47 @@
+<html>
+    <head>
+
+<script>
+function main() {
+    let a = 0x3000;
+    let b = 0xFFF0;
+
+    let c = a + b;
+
+    console.log(c); //bad value: 77808
+
+    c = c & 0xFFFF;
+    console.log(c); //OK!: 12272
+
+     ar = new Uint16Array(3);
+     ar[0] = 0x3000;
+     ar[1] = 0xFFF0;
+     ar[2] = ar[0] + ar[1];
+     console.log(ar); //Uint16Array(3) [12288, 65520, 12272]
+
+     ar[0] = 0b10101; //-5 in two complement
+     let s = sext(ar[0],5);
+     console.log(s); //error prints: 2097141
+
+     ar[1] = sext(ar[0],5);
+     console.log(ar[1]); //correct: 65525 = 1111111111110101
+
+}
+
+function  sext(x, bit_count) {
+        if ((x >> (bit_count - 1) & 1)) 
+	        x |= (0xFFFF << bit_count);
+	    return x;
+    }
+
+
+</script>        
+
+
+    </head>
+
+        <body onload = "main()">
+
+        </body>
+    
+</html>    

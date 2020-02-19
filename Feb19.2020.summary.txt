@@ -1,0 +1,28 @@
+     //Javascript
+     ar = new Uint16Array(3);
+     ar[0] = 0x3000;
+     ar[1] = 0xFFF0;
+     ar[2] = ar[0] + ar[1];
+     console.log(ar); //Uint16Array(3) [12288, 65520, 12272]
+
+     let a = 0x3000;
+     let b = 0xFFF0;
+     let c = a + b;
+     console.log(c); //bad value: 77808
+     c = c & 0xFFFF;
+     console.log(c); //OK!: 12272
+
+    //C
+    uint16_t a = 0x3000;
+	uint16_t b = 0xFFF0;
+	uint16_t c = a + b;
+	printf("7: %x\n",c); //7: 2ff0
+	printf("8: %d\n",c); //8: 12272
+
+    //Java
+    int a1 = 0x3000;
+	int b1 = 0xFFF0;
+	int c1 = a1 + b1;
+	System.out.printf("10: %x\n",c1); //10: 12ff0 (error)	
+	c1 = c1 & 0xFFFF;
+	System.out.printf("11: %x\n",c1); //11: 2ff0 (correct)

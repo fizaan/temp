@@ -38,10 +38,8 @@ class Bus {
     mem_read(address) {
         //console.log(address);
         if (address == this.MR_KBSR) {
-           // await sleep(2000);
             this.mem_write(this.MR_KBSR, (1 << 15));
             this.mem_write(this.MR_KBDR, this.userinput[this.count++]);
-            //console.log(this.count+": you entered: " + this.memory[this.MR_KBDR]);
         }    
         return this.memory[address];
     }
@@ -49,10 +47,6 @@ class Bus {
     mem_write(address,val) {
         return this.memory[address] = val;
     }
-
-    sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-      }
 
 }// end class Bus
 
@@ -65,9 +59,6 @@ class CPU {
 
     print() { this.print(); }
 
-
-
-    
     /*
         Note: anything outside of onload = function { } is not
         accessible within the brackets. Don't ask why. This is
@@ -95,166 +86,133 @@ class CPU {
 class vm {
 
     start() {
-        var running = true;
-        //while(running) {
-            //console.log("running");
-            let instr = this.bus.getMemory()[this.reg[this.R_PC]++];
-            //console.log(this.reg[this.R_PC]);
-            if(this.reg[this.R_PC] >= this.bus.imageSize)
-                running = false;
-            let op = instr >> 12;
-            let r0 = 0;
-            let r1 = 0;
-            let imm5 = 0;
-            let imm_flag = 0;
-            let pc_offset = 0;
-            let long_pc_offset = 0;
-            let cond_flag = 0;
-            let long_flag = 0;
-            let offset = 0;
-            switch(op) {
+            //instruction instr
+            this.ph[4] = this.bus.getMemory()[this.reg[this.R_PC]++];
+            
+            this.ph[5] = this.ph[4] >> 12;
+            switch(this.ph[5]) {
                 case this.OP_ADD:
-                //console.log("add");
-                    r0 = (instr >> 9) & 0x7;
-                    r1 = (instr >> 6) & 0x7;
-                    imm_flag = (instr >> 5) & 0x1;
-                    if(imm_flag) {
-                        imm5 = this.sext(instr & 0x1F, 5);
-                        this.reg[r0] = this.reg[r1] + imm5;
+                    this.ph[0] = (this.ph[4] >> 9) & 0x7;
+                    this.ph[1] = (this.ph[4] >> 6) & 0x7;
+                    this.ph[2] = (this.ph[4] >> 5) & 0x1;
+                    if(this.ph[2]) {
+                        this.ph[3] = this.sext(this.ph[4] & 0x1F, 5);
+                        this.reg[this.ph[0]] = this.reg[this.ph[1]] + this.ph[3];
                     }
                     else {
-                        let r2 = instr & 0x7;
-                        this.reg[r0] = this.reg[r1] + this.reg[r2];
+                        this.ph[3] = this.ph[4] & 0x7;
+                        this.reg[this.ph[0]] = this.reg[this.ph[1]] + this.reg[this.ph[3]];
                     }    
-                    this.update_flags(r0);    
+                    this.update_flags(this.ph[0]);    
                 break;
 
                 case this.OP_AND:
-                //console.log("and");
-                    r0 = (instr >> 9) & 0x7;
-                    r1 = (instr >> 6) & 0x7;
-                    imm_flag = (instr >> 5) & 0x1;
-                    if(imm_flag) {
-                        imm5 = this.sext(instr & 0x1F, 5);
-                        this.reg[r0] = this.reg[r1] & imm5;
+                    this.ph[0] = (this.ph[4] >> 9) & 0x7;
+                    this.ph[1] = (this.ph[4] >> 6) & 0x7;
+                    this.ph[2] = (this.ph[4] >> 5) & 0x1;
+                    if(this.ph[2]) {
+                        this.ph[3] = this.sext(this.ph[4] & 0x1F, 5);
+                        this.reg[this.ph[0]] = this.reg[this.ph[1]] & this.ph[3];
                     }
                     else {
-                        let r2 = instr & 0x7;
-                        this.reg[r0] = this.reg[r1] & this.reg[r2];
+                        this.ph[3] = this.ph[4] & 0x7;
+                        this.reg[this.ph[0]] = this.reg[this.ph[1]] & this.reg[this.ph[3]];
                     }    
-                    this.update_flags(r0);    
+                    this.update_flags(this.ph[0]);      
                 break;
 
                 case this.OP_NOT:
-                //console.log("not");
-                    r0 = (instr >> 9) & 0x7;
-                    r1 = (instr >> 6) & 0x7;
+                    this.ph[0] = (this.ph[4] >> 9) & 0x7;
+                    this.ph[1] = (this.ph[4] >> 6) & 0x7;
 
-                    this.reg[r0] = ~this.reg[r1];
-                    this.update_flags(r0);
+                    this.reg[this.ph[0]] = ~this.reg[this.ph[1]];
+                    this.update_flags(this.ph[0]);
                 break;
 
                 case this.OP_BR:
-                //console.log("br");
-                    pc_offset = this.sext(instr & 0x1FF, 9);
-                    cond_flag = (instr >> 9) & 0x7;
-                    if (cond_flag & this.reg[this.R_COND])
-                        this.reg[this.R_PC] += pc_offset;
-                    //let current_nzp = this.reg[this.R_COND] & 0b111;
-                    //let desired_nzp = (instr >> 9) & 0b111;
-
-                   // if (current_nzp & desired_nzp) {
-                   //     pc_offset = this.sext(instr, 9);
-                   //     this.reg[this.R_PC] += pc_offset;
-                   // }
-
-                break;
+                    this.ph[0] = this.sext(this.ph[4] & 0x1FF, 9);
+                    this.ph[1] = (this.ph[4] >> 9) & 0x7;
+                    if (this.ph[1] & this.reg[this.R_COND])
+                        this.reg[this.R_PC] += this.ph[0];
+                    //console.log("br: "+this.reg[this.R_PC]);
                 break;
 
                 case this.OP_JMP:
-                //console.log("jmp");
-                    /* Also handles RET */
-                    r1 = (instr >> 6) & 0x7;
-                    this.reg[this.R_PC] = this.reg[r1];
+                    this.ph[0] = (this.ph[4] >> 6) & 0x7;
+                    this.reg[this.R_PC] = this.reg[this.ph[0]];
+                    //console.log("jmp: "+this.reg[this.R_PC] +"...instr: "+this.ph[4] + " reg: " + this.ph[0] + " = " + this.reg[this.ph[0]]);
                 break;
 
                 case this.OP_JSR:
-                //console.log("jsr");
-                    r1 = (instr >> 6) & 0x7;
-                    long_pc_offset = this.sext(instr & 0x7FF, 11);
-                    long_flag = (instr >> 11) & 1;
+                    this.ph[0]  = (this.ph[4] >> 6) & 0x7;
+                    this.ph[1]  = this.sext(this.ph[4] & 0x7FF, 11);
+                    this.ph[2]  = (this.ph[4] >> 11) & 1;
                     this.reg[7] = this.reg[this.R_PC];
                     
-                    if (long_flag)
-                        this.reg[this.R_PC] += long_pc_offset;  /* JSR */
+                    if (this.ph[2])
+                        this.reg[this.R_PC] += this.ph[1];  /* JSR */
                     else
-                        this.reg[this.R_PC] = this.reg[r1]; /* JSRR */
+                        this.reg[this.R_PC] = this.reg[this.ph[0]]; /* JSRR */
+                    
+                   // console.log("jsr: "+this.reg[this.R_PC]);
                 break;
 
                 case this.OP_LD:
-                //console.log("ld");
-	                r0 = (instr >> 9) & 0x7;
-	                pc_offset = this.sext(instr & 0x1FF, 9);
-	                this.reg[r0] = this.bus.mem_read(this.reg[this.R_PC] + pc_offset);
-	                this.update_flags(r0);
+	                this.ph[0] = (this.ph[4] >> 9) & 0x7;
+	                this.ph[1] = this.sext(this.ph[4] & 0x1FF, 9);
+	                this.reg[ this.ph[0]] = this.bus.mem_read(this.reg[this.R_PC] + this.ph[1]);
+	                this.update_flags( this.ph[0]);
                 break;
                 
                 case this.OP_LDI:
-                //console.log("ldi");
-	                r0 = (instr >> 9) & 0x7;
-	                pc_offset = this.sext(instr & 0x1FF, 9);
-	                this.reg[r0] = this.bus.mem_read(this.bus.mem_read(this.reg[this.R_PC] + pc_offset));
-	                this.update_flags(r0);
+	                this.ph[0] = (this.ph[4] >> 9) & 0x7;
+	                this.ph[1] = this.sext(this.ph[4] & 0x1FF, 9);
+	                this.reg[ this.ph[0]] = this.bus.mem_read(this.bus.mem_read(this.reg[this.R_PC] + this.ph[1]));
+	                this.update_flags( this.ph[0]);
                 break;
 
                 case this.OP_LDR:
-                //console.log("ldr");
-	                r0 = (instr >> 9) & 0x7;
-	                r1 = (instr >> 6) & 0x7;
-	                offset = this.sext(instr & 0x3F, 6);
-	                this.reg[r0] = this.bus.mem_read(this.reg[r1] + offset);
-	                this.update_flags(r0);
+	                this.ph[0] = (this.ph[4] >> 9) & 0x7;
+	                this.ph[1] = (this.ph[4] >> 6) & 0x7;
+	                this.ph[3] = this.sext(this.ph[4] & 0x3F, 6);
+	                this.reg[ this.ph[0]] = this.bus.mem_read(this.reg[this.ph[1]] + this.ph[3]);
+	                this.update_flags( this.ph[0]);
 	            break;
 
                 case this.OP_LEA:
-                //console.log("lea");
-                    r0 = (instr >> 9) & 0x7;
-                    pc_offset = this.sext(instr & 0x1FF, 9);
-                    this.reg[r0] = this.reg[this.R_PC] + pc_offset;
-                    this.update_flags(r0);    
+                    this.ph[0] = (this.ph[4] >> 9) & 0x7;
+                    this.ph[1] = this.sext(this.ph[4] & 0x1FF, 9);
+                    this.reg[ this.ph[0]] = this.reg[this.R_PC] + this.ph[1];
+                    this.update_flags( this.ph[0]);    
                 break;
 
                 case this.OP_ST:
-                //console.log("st");
-	                r0 = (instr >> 9) & 0x7;
-	                pc_offset = this.sext(instr & 0x1FF, 9);
-	                this.bus.mem_write(this.reg[this.R_PC] + pc_offset, this.reg[r0]);
+	                this.ph[0] = (this.ph[4] >> 9) & 0x7;
+	                this.ph[1] = this.sext(this.ph[4] & 0x1FF, 9);
+	                this.bus.mem_write(this.reg[this.R_PC] + this.ph[1], this.reg[ this.ph[0]]);
                 break;
 
                 case this.OP_STI:
-                //console.log("sti");
-	                r0 = (instr >> 9) & 0x7;
-	                pc_offset = this.sext(instr & 0x1FF, 9);
-	                this.bus.mem_write(this.bus.mem_read(this.reg[this.R_PC] + pc_offset), this.reg[r0]);
+	                this.ph[0] = (this.ph[4] >> 9) & 0x7;
+	                this.ph[1] = this.sext(this.ph[4] & 0x1FF, 9);
+	                this.bus.mem_write(this.bus.mem_read(this.reg[this.R_PC] + this.ph[1]), this.reg[ this.ph[0]]);
                 break;
                 
                 case this.OP_STR:
-                //console.log("str");
-	                r0 = (instr >> 9) & 0x7;
-	                r1 = (instr >> 6) & 0x7;
-	                offset = this.sext(instr & 0x3F, 6);
-	                this.bus.mem_write(this.reg[r1] + offset, this.reg[r0]);
+	                this.ph[0] = (this.ph[4] >> 9) & 0x7;
+	                this.ph[1] = (this.ph[4] >> 6) & 0x7;
+	                this.ph[3] = this.sext(this.ph[4] & 0x3F, 6);
+	                this.bus.mem_write(this.reg[this.ph[1]] + this.ph[3], this.reg[ this.ph[0]]);
 	            break;
 
                 case this.OP_TRAP: {    
-                    switch (instr & 0xFF)   {
+                    switch (this.ph[4] & 0xFF)   {
                         case this.TRAP_HALT:
-                        console.log("HALT");
-                        running = false;    
+                            console.log("HALT");
                         break;
 
                         case this.TRAP_GETC:
-                        console.log("GETC");
+                            console.log("GETC");
                         break;
 
                         case this.TRAP_OUT:
@@ -264,7 +222,7 @@ class vm {
                         break;
 
                         case this.TRAP_IN:
-                        console.log("TRAP_IN");
+                            console.log("TRAP_IN");
                         break;
 
                         case this.TRAP_PUTS:
@@ -282,60 +240,53 @@ class vm {
                             console.log(str);    
                         break;
                     }
-                break;
                 }
+                break;
                 case this.OP_RES:
 	            case this.OP_RTI:
 	            default:
 	                /* BAD OPCODE */
-                   //console.log("Bad code");
-                   running = false;
-	            break;
+                   console.log("Bad code");
+                break;
             }
-        //}
+
+            console.log("op code = " + this.ph[4]);
+            console.log(this.reg);
+            console.log("------");
     }
 
     
 
 
     sext(x, bit_count) {
-        if ((x >> (bit_count - 1) & 1)) 
-	        x |= (0xFFFF << bit_count);
-	    return x;
+        if ( ( x >> (bit_count - 1) ) & 1) {
+            x |= (0xFFFF << bit_count);
+        }
+        return x;
     }
-
-    /*sext(val, n) {
-        var m = 1 << (n - 1);
-        val &= (1 << n) - 1;
-        return (val ^ m) - m;
-    }*/
 
     
 	update_flags(r) {
+        this.ph[1] = 1 << 0; //POS
+        this.ph[2] = 1 << 1; //ZER
+        this.ph[3] = 1 << 2; //NEG
+
 	    if (this.reg[r] == 0)
-	        this.reg[this.R_COND] = this.FL_ZRO;
+	        this.reg[this.R_COND] = this.ph[2]; 
 	    else if (this.reg[r] >> 15) /* a 1 in the left-most bit indicates negative  */
-	        this.reg[this.R_COND] = this.FL_NEG;
+	        this.reg[this.R_COND] = this.ph[3];
 	    else
-            this.reg[this.R_COND] = this.FL_POS;
-            
-            /*if (r == 0) {
-                this.reg[this.R_COND] = this.FL_ZRO;
-            }
-            else if (r & (1 << 15)) {
-                this.reg[this.R_COND] = this.FL_NEG;
-            }
-            else {
-                this.reg[this.R_COND] = this.FL_POS
-            }*/
+            this.reg[this.R_COND] = this.ph[1];
 	}
     
     constructor(bus) {
         this.bus = bus;
         this.R_PC = 8;
         this.R_COND = 9;
+        this.R_COUNT = 10;
         this.PC_START = 0x3000;
-        this.reg = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+        this.reg = new Uint16Array(this.R_COUNT);
+        this.ph = new Uint16Array(6); //PLACE HOLDER for temp unint16 variables.
         this.reg[this.R_PC] = this.PC_START;
 
         /* Opcodes */
@@ -364,10 +315,5 @@ class vm {
         this.TRAP_IN = 0x23;    /* get character from keyboard, echoed onto the terminal */
         this.TRAP_PUTSP = 0x24; /* output a byte string */
         this.TRAP_HALT = 0x25;   /* halt the program */
-
-        /* Condition Flags */
-	    this.FL_POS = 1 << 0; /* P */
-	    this.FL_ZRO = 1 << 1; /* Z */
-        this.FL_NEG = 1 << 2; /* N */
     }
 }
