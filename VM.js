@@ -5,12 +5,12 @@ class Bus {
     constructor(name) {
         this.test = "name";
         this.memory = new Uint16Array(this.MAX_MEM);
+
+        // n, y, w, s, a, d
         this.userinput = [ 0x6E, 0x79, 0x77, 0x73, 0x61, 0x64 ];
         this.count = 0;
-        
-        /* Memory Mapped Registers */
-	    this.MR_KBSR = 0xFE00; /* keyboard status */
-	    this.MR_KBDR = 0xFE02;  /* keyboard data */
+        this.kb = new Uint16Array(1);
+        this.MR_KBSR = 0;
     }
 
     setImageSize(x) {
@@ -37,10 +37,14 @@ class Bus {
 
     mem_read(address) {
         //console.log(address);
-        if (address == this.MR_KBSR) {
-            this.mem_write(this.MR_KBSR, (1 << 15));
-            this.mem_write(this.MR_KBDR, this.userinput[this.count++]);
-        }    
+        if (address == 0xFE00) {
+            this.kb[this.MR_KBSR] = 1 << 15;
+            this.mem_write(0xFE00, this.kb[this.MR_KBSR]); //KBSR
+            this.mem_write(0xFE02, this.userinput[this.count++]); //KBDR
+        }
+        else
+            this.kb[this.MR_KBSR] = 0;
+
         return this.memory[address];
     }
 
@@ -249,7 +253,7 @@ class vm {
             }
 
             //console.log("op code = " + this.ph[this.instr]);
-            //console.log(this.reg);
+            console.log(this.reg);
             //console.log("------");
     }
 
@@ -265,16 +269,16 @@ class vm {
 
     
 	update_flags(r) {
-        this.ph[this.r1] = 1 << 0; //POS
-        this.ph[2] = 1 << 1; //ZER
-        this.ph[3] = 1 << 2; //NEG
+        // 1 << 0; //POS
+        // 1 << 1; //ZER
+        // 1 << 2; //NEG
 
 	    if (this.reg[r] == 0)
-	        this.reg[this.R_COND] = this.ph[2]; 
+	        this.reg[this.R_COND] =  1 << 1;    // 2 = ZERO 
 	    else if (this.reg[r] >> 15) /* a 1 in the left-most bit indicates negative  */
-	        this.reg[this.R_COND] = this.ph[3];
+	        this.reg[this.R_COND] = 1 << 2; //4 = NEG
 	    else
-            this.reg[this.R_COND] = this.ph[this.r1];
+            this.reg[this.R_COND] = 1 << 0; // 1 = POS
 	}
     
     constructor(bus) {
@@ -284,10 +288,10 @@ class vm {
         this.R_COUNT = 10;
         this.PC_START = 0x3000;
         this.reg = new Uint16Array(this.R_COUNT);
-        this.ph = new Uint16Array(14); //PLACE HOLDER for temp unint16 variables.
+        this.ph = new Uint16Array(14); //PLACE HOLDER for temp unint16 variables. (1)
         this.reg[this.R_PC] = this.PC_START;
 
-        //place holder values.
+        //place holder values.(1)
         this.r0 = 0;
         this.r1 = 1;
         this.r2 = 2;
