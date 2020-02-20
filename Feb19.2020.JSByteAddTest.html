@@ -26,6 +26,18 @@ function main() {
      ar[1] = sext(ar[0],5);
      console.log(ar[1]); //correct: 65525 = 1111111111110101
 
+     ar[0] = 16384;
+     ar[1] = 65535;
+     ar[2] = ar[0] + ar[1];
+     console.log(ar); 
+
+     ar2 = new Uint16Array(1);
+     ar2[0] = 0xFFFF;
+     let x = ar[0] + ar2[0]; //don't store in x
+     ar[2] = ar[0] + ar2[0];
+     console.log(ar); //Uint16Array(3) 
+     console.log(x);
+
 }
 
 function  sext(x, bit_count) {
