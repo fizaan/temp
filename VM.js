@@ -3,11 +3,13 @@ class Bus {
     MAX_MEM = 0xFFFF;
 
     constructor(name) {
-        this.test = "name";
+        this.test = name;
         this.memory = new Uint16Array(this.MAX_MEM);
 
-        // n, y, w, s, a, d
-        this.userinput = [ 0x6E, 0x79, 0x77, 0x73, 0x61, 0x64 ];
+        // o, o, a,  n,  y,  w,  s,  a,  d,
+        //this.userinput = [ 0x6F, 0x6F, 0x61, 0x6E, 0x79, 0x77, 0x73, 0x61, 0x64 ];
+        // o, o, a,  y,  n,  w,  s,  a,  d,
+        this.userinput = [ 0x6F, 0x6F, 0x61, 0x79, 0x6E, 0x77, 0x73, 0x61, 0x64 ];
         this.count = 0;
         this.kb = new Uint16Array(1);
         this.MR_KBSR = 0;
@@ -27,7 +29,6 @@ class Bus {
 
     getMemory() { 
         return this.memory; 
-        //console.log("getting mem");
     }
 
     printMemory() {
@@ -36,7 +37,6 @@ class Bus {
     }
 
     mem_read(address) {
-        //console.log(address);
         if (address == 0xFE00) {
             this.kb[this.MR_KBSR] = 1 << 15;
             this.mem_write(0xFE00, this.kb[this.MR_KBSR]); //KBSR
@@ -50,7 +50,6 @@ class Bus {
 
     mem_write(address,val) {
         this.memory[address] = val;
-        //console.log("writing..." + address + ", value =  " + val);
     }
 
 }// end class Bus
@@ -91,6 +90,8 @@ class CPU {
 class vm {
 
     start() {
+        let running = true;
+        while (running) {
             //instruction instr
             this.ph[this.instr] = this.bus.getMemory()[this.reg[this.R_PC]++];
             this.ph[this.opcode] = this.ph[this.instr] >> 12;
@@ -107,21 +108,19 @@ class vm {
 
             switch(this.ph[this.opcode]) {
                 case this.OP_ADD:
-                    console.log("ADD");
                     if(this.ph[this.imm5flag]) 
                        this.reg[this.ph[this.r0]] = this.reg[this.ph[this.r1]] + this.ph[this.imm5];
                     else 
-                        this.reg[this.ph[this.r0]] = this.reg[this.ph[this.r1]] + this.reg[this.r2];   
+                        this.reg[this.ph[this.r0]] = this.reg[this.ph[this.r1]] + this.reg[this.ph[this.r2]];   
                     
                     this.update_flags(this.ph[this.r0]);    
                 break;
 
                 case this.OP_AND:
-                    console.log("AND");
                     if(this.ph[this.imm5flag]) 
                         this.reg[this.ph[this.r0]] = this.reg[this.ph[this.r1]] & this.ph[this.imm5];
                    else
-                        this.reg[this.ph[this.r0]] = this.reg[this.ph[this.r1]] & this.reg[this.r2];
+                        this.reg[this.ph[this.r0]] = this.reg[this.ph[this.r1]] & this.reg[this.ph[this.r2]]; 
                      
                     this.update_flags(this.ph[this.r0]);      
                 break;
@@ -137,13 +136,10 @@ class vm {
                 break;
 
                 case this.OP_JMP: //also handles RET
-                console.log("JMP/RET");
                     this.reg[this.R_PC] = this.reg[this.ph[this.r1]];
-                    //console.log("jmp: "+this.reg[this.R_PC] +"...instr: "+this.ph[this.instr] + " reg: " + this.ph[this.r0] + " = " + this.reg[this.ph[this.r0]]);
                 break;
 
-                case this.OP_JSR://##############################
-                    console.log("jsr");
+                case this.OP_JSR:
                     this.reg[7] = this.reg[this.R_PC];
                     
                     if (this.ph[this.longflagcond])
@@ -151,11 +147,9 @@ class vm {
                     else
                         this.reg[this.R_PC] = this.reg[this.ph[this.r1]]; /* JSRR */
                     
-                   // console.log("jsr: "+this.reg[this.R_PC]);
                 break;
 
                 case this.OP_LD:
-                console.log("LD");
                     this.ph[this.pc_sum] = this.reg[this.R_PC] + this.ph[this.offset9];
                     this.reg[ this.ph[this.r0]] = this.bus.mem_read(this.ph[this.pc_sum]);
 	                this.update_flags( this.ph[this.r0]);
@@ -163,20 +157,13 @@ class vm {
                 
                 case this.OP_LDI:
                     this.ph[this.pc_sum] = this.reg[this.R_PC] + this.ph[this.offset9];
-	                this.reg[ this.ph[this.r0]] = this.bus.mem_read(this.bus.mem_read(this.ph[this.pc_sum]));
+                    this.reg[ this.ph[this.r0]] = this.bus.mem_read(this.bus.mem_read(this.ph[this.pc_sum]));
 	                this.update_flags( this.ph[this.r0]);
                 break;
 
                 case this.OP_LDR:
-                    //console.log("LDR: " + this.ph[this.instr]);
                     this.ph[this.pc_sum] = this.reg[this.ph[this.r1]] + this.ph[this.offset6];
                     this.reg[ this.ph[this.r0]] = this.bus.mem_read(this.ph[this.pc_sum]);
-                    //console.log("r0 = " + this.ph[this.r0]);
-                   // console.log("r1 = " + this.ph[this.r1]);
-                   // console.log("offset = " + this.ph[this.offset6]);
-                    //console.log("r6 = " + this.reg[this.ph[this.r1]]);
-                   // console.log( "PC offset: " + (this.reg[this.ph[this.r1]] + this.ph[this.offset6]) );
-                    //console.log("value at this mem location: " + this.bus.mem_read(this.reg[this.ph[this.r1]] + this.ph[this.offset6]));
                     this.update_flags( this.ph[this.r0]);
                     
 	            break;
@@ -187,26 +174,16 @@ class vm {
                 break;
 
                 case this.OP_ST:
-                    //console.log("st");
                     this.ph[this.pc_sum] = this.reg[this.R_PC] + this.ph[this.offset9];
 	                this.bus.mem_write(this.ph[this.pc_sum], this.reg[ this.ph[this.r0]]);
                 break;
 
                 case this.OP_STI:
-                    //console.log("sti");
                     this.ph[this.pc_sum] = this.reg[this.R_PC] + this.ph[this.offset9];
 	                this.bus.mem_write(this.bus.mem_read(this.ph[this.pc_sum], this.reg[this.ph[this.r0]]));
                 break;
                 
                 case this.OP_STR:
-                    //console.log("str " + this.ph[this.instr]);
-                    //console.log("r0 = " + this.ph[this.r0]);
-                    //console.log("r0 value = " + this.reg[this.ph[this.r0]]);
-                    //console.log("r1 = " + this.ph[this.r1]);
-                    //console.log("r1 value = " + this.reg[this.ph[this.r1]]);
-                    //console.log("offset value = " + this.ph[this.offset6]);
-                    
-                    //console.log( "PC offset sum: " + (this.reg[this.ph[this.r1]] + this.ph[this.offset6]) );
                     this.ph[this.pc_sum] = this.reg[this.ph[this.r1]] + this.ph[this.offset6];
                     this.bus.mem_write(this.ph[this.pc_sum], this.reg[ this.ph[this.r0]]);
 	            break;
@@ -219,10 +196,11 @@ class vm {
 
                         case this.TRAP_GETC:
                             console.log("GETC");
+                            //this.reg[0] = 0x77
+                            running = false;
                         break;
 
                         case this.TRAP_OUT:
-                            console.log("OUT");
                             let val =  this.reg[0];
                             val = String.fromCharCode(val);
 	                        console.log(val);
@@ -233,6 +211,7 @@ class vm {
                         break;
 
                         case this.TRAP_PUTS:
+                            
                             let str = "";
                             let address = this.reg[0];
                             for(var i = address;;i++) {
@@ -256,10 +235,7 @@ class vm {
                    console.log("Bad code");
                 break;
             }
-
-            //console.log("op code = " + this.ph[this.instr]);
-            //console.log(this.ph[this.instr] + ": " + this.reg);
-            //console.log("------");
+        }
     }
 
     
