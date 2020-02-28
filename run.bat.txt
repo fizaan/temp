@@ -1,0 +1,9 @@
+@echo off
+call 1.init
+cd ..
+echo.
+java -cp %cd%\bin; tiny.vm.CPU
+echo.
+echo.
+tiny-vm-orig %image%
+cd ant
