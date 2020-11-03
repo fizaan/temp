@@ -1,0 +1,3 @@
+export http_proxy=204.40.130.129:3128
+export https_proxy=204.40.130.129:3128
+https://github.com/fizaan/lc3-backup.git
