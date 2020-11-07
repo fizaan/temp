@@ -273,15 +273,15 @@ public class GBCpuBootRom implements CPUBusInterface{
 	 * 	
 	 * 0xCB 0x7C
 	 * 
-	 * if bit 7 of H is 1
-	 * then set z to 0
+	 * if bit 7 of H is 0
+	 * then set z to 1
 	 */
 	public void HCB7C() {
 		Logit.info(this,  
 				Integer.toHexString(data).toUpperCase() + ": BIT 7,H");
 		reg.setN(false);
 		reg.setHC(true);
-		reg.setZ(!((reg.getH() >> 7) == 1) );
+		reg.setZ((reg.getH() >> 7) == 0);
 		reg.getF();
 		
 	}
