@@ -281,7 +281,7 @@ public class GBCpuBootRom implements CPUBusInterface{
 				Integer.toHexString(data).toUpperCase() + ": BIT 7,H");
 		reg.setN(false);
 		reg.setHC(true);
-		reg.setZ((reg.getH() >> 7) == 1);
+		reg.setZ(!((reg.getH() >> 7) == 1) );
 		reg.getF();
 		
 	}
