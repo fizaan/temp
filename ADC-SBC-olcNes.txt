@@ -1,0 +1,32 @@
+github.com/OneLoneCoder/olcNES/.../olc6502.cpp
+
+ADC:
+    fetch();
+    temp = (uint16_t)a + (uint16_t)fetched + (uint16_t)GetFlag(C);
+    SetFlag(C, temp > 255);
+    SetFlag(Z, (temp & 0x00FF) == 0);
+    SetFlag(V, (~((uint16_t)a ^ (uint16_t)fetched) & ((uint16_t)a ^ (uint16_t)temp)) & 0x0080);
+    SetFlag(N, temp & 0x80);
+    a = temp & 0x00FF;
+
+SBC:
+	fetch();
+	// Operating in 16-bit domain to capture carry out
+
+	// We can invert the bottom 8 bits with bitwise xor
+	uint16_t value = ((uint16_t)fetched) ^ 0x00FF;
+	
+    // Notice this is exactly the same as addition from here!
+	temp = (uint16_t)a + value + (uint16_t)GetFlag(C);
+	SetFlag(C, temp & 0xFF00);
+	SetFlag(Z, ((temp & 0x00FF) == 0));
+	SetFlag(V, (temp ^ (uint16_t)a) & (temp ^ value) & 0x0080);
+	SetFlag(N, temp & 0x0080);
+	a = temp & 0x00FF;
+	return 1;
+}
+
+uint8_t olc6502::GetFlag(FLAGS6502 f)
+{
+	return ((status & f) > 0) ? 1 : 0;
+}
