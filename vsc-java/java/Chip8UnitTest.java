@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class Chip8UnitTest {
     public static void main(String args[]) throws Exception {
-        String rom = "C:/Users/Alifa/Desktop/lc3-backup/eclipse/LC3Chip8Emulator/lc3-obj/chip8roms/test2.bin";
+        String rom = "C:/Users/Alifa/Desktop/lc3-backup/eclipse/LC3Chip8Emulator/lc3-obj/chip8roms/test1.bin";
         InputStream input = new FileInputStream(rom);  
         DataInputStream inst = new DataInputStream(input);
         int index = 0;
@@ -74,10 +74,6 @@ public class Chip8UnitTest {
                     toAppend += String.format(" | opcode = %02X COMPUTE9",opcode);
                 break;
 
-                case 8:
-                    toAppend += String.format(" | opcode = %02X",opcode);
-                break;
-
                 case 9:
                     toAppend += String.format(" | opcode = %02X COMPUTE10",opcode);
                 break;
@@ -96,6 +92,51 @@ public class Chip8UnitTest {
 
                 case 0xd:
                     toAppend += String.format(" | opcode = %02X COMPUTE14",opcode);
+                break;
+
+                case 8: {
+                    switch(last4bits) {
+                        case 0:
+                            toAppend += String.format(" | opcode = %02X %02X COMPUTE-8A",opcode,last4bits);
+                        break;
+
+                        case 1:
+                            toAppend += String.format(" | opcode = %02X %02X COMPUTE-8B",opcode,last4bits);
+                        break;
+
+                        case 2:
+                            toAppend += String.format(" | opcode = %02X %02X COMPUTE-8C",opcode,last4bits);
+                        break;
+
+                        case 3:
+                            toAppend += String.format(" | opcode = %02X %02X COMPUTE-8D",opcode,last4bits);
+                        break;
+
+                        case 4:
+                            toAppend += String.format(" | opcode = %02X %02X COMPUTE-8E",opcode,last4bits);
+                        break;
+
+                        case 5:
+                            toAppend += String.format(" | opcode = %02X %02X COMPUTE-8F",opcode,last4bits);
+                        break;
+
+                        case 6:
+                            toAppend += String.format(" | opcode = %02X %02X COMPUTE-8G",opcode,last4bits);
+                        break;
+
+                        case 7:
+                            toAppend += String.format(" | opcode = %02X %02X COMPUTE-8H",opcode,last4bits);
+                        break;
+
+                        case 0xe:
+                            toAppend += String.format(" | opcode = %02X %02X COMPUTE-8I",opcode,last4bits);
+                        break;
+
+                        default:
+                            toAppend += String.format(" | opcode = %02X %02X Err NO OPCPDE",opcode,last4bits);
+                        break;
+                    }
+                }
                 break;
 
                 case 0xe: {
