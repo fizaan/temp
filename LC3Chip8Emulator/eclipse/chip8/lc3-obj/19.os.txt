@@ -1,0 +1,64 @@
+; usage: 
+; dos>cd %lc3home%
+; dos>run.bat out\19.os.txt out\19.os.obj
+; LC3 OS loaded
+; > 13.FibonaciOutR.obj
+
+.start 3000
+
+    lea r6  stack    
+    
+    movi r0 0                   ;r0 = 0
+    mode                        ;PSR = 0, kernel mode
+    addi r1 r1 2                ;r1 = 2
+    ld r0 newline   _print3     ;print newline 3 times
+    out                         ;newline
+    addi r1 r1 -1               ;r1--
+    br < print3                 ;jmp to print3 while r1 >= 0. Stop when r1 is neg
+
+    lea r0 welcome              ;load addr of welcome into r0                
+    puts                        ;print welcome
+    ld r0 newline               ;new line char
+    out                         ;print new line
+    lea r0 prompt  _cmd         ;load addr of prompt (index 0) into r0
+	puts                        ;print lc3 os prompt
+    
+    /*********************
+    When all programs end,
+    this is where
+    we should return
+    to: cmd
+    
+    Store address of cmd
+    into r7, then push r7:
+    *********************/
+    leaf r7 cmd                 ;load address of cmd into r7                 
+    push r7                     ;push r7 onto OS stack.             
+    
+    lea r0 userprogfile         ;load userprog addr index 0
+    scan                        ;read user input, save into addr specified by r0
+    ldprog                      ;load file into memory. Program file is at address r0
+    pop r7
+    ret
+	
+halt
+
+.data#welcome#STR#LC3 OS loaded#
+.data#run#STR#Running...#
+.data#stack#ARRAY#15
+.data#prompt#STR#> #  		
+.data#newline#HEX#0A 
+
+/*
+    userprogfile string must
+    be greater than 15. There
+    is a bug. If the 'obj'
+    filename is > 15
+    it will override the next
+    program's memory location
+
+    Took me an entire f-ing
+    day to figure out.
+*/
+.data#userprogfile#ARRAY#300
+

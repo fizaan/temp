@@ -1,0 +1,67 @@
+Enhanced LC3 Instruction set opcodes for LC3 Light VM.
+
+r0 = srcreg = bits 5-7 (inclusive)
+r1 = bits 8-10
+r2 = bits 14-16
+mc = bits 12-13 (for normal addr, mulr and cmp)
+IN/OUT/VRAM/SCALE/RAND/RANB = bits 11-13
+imm5Trap = bits 8-12 (only used in movi)
+trap4 = bits 13-16
+
+*Followed by abs (Signed 2-byte two's complement)
+offset6 = always 0
+
+(1) Passing r1 not r0
+Example: ret means pc = reg[r1];
+
+CC = set flags. Note this version
+doesn't set flags for LD, LDI, LDR
+LEA and NOT.
+
+*BR:                    0:  0000 NZP 000000000   
+ADDR:CC                 1:  0001 r0 r1 0 mc r2
+ADDI:CC                 1:  0001 r0 r1 1 imm5
+*LD:                    2:  0010 r0 000000000
+*ST:                    3:  0011 r0 000000000
+*JSR:                   4:  0100 1 00000000000
+*JSRR:                  4:  0100 0 00 r1 000000 (1)
+ANDR:CC                 5:  0101 r0 r1 0 00 r2
+ANDI:CC                 5:  0101 r0 r1 1 imm5
+LDR:                    6:  0110 r0 r1 offset6
+STR:                    7:  0111 r0 r1 offset6
+RTI:                    8:  1000 000000000000 (unused)
+NOT:                    9:  1001 r0 r1 111111
+*LDI:                   10: 1010 r0 000000000
+*STI:                   11: 1011 r0 000000000
+RET/JMP:                12: 1100 000 111 000000 (1)
+RES:                    13: 1101 r0 r1 IN/OUT/SCALE/RAND/RANB r2
+*LEA:                   14: 1110 r0 000000000
+TRAP:                   15: 1111 r0 r1 imm5Trap trap4   
+
+mc cases:
+    0: Normal addr
+    1: mulr
+    2: cmp 
+
+trap4 cases:
+    0:  TRAP_GETC
+    1:  TRAP_OUT
+    2:  TRAP_PUTS
+    3:  TRAP_IN
+    4:  TRAP_PUTSP
+    5:  TRAP_HALT
+    6:  TRAP_OUTR
+    7:  TRAP_MOVR
+    8:  TRAP_SWAPR
+    9:  TRAP_MOVI
+    10: TRAP_SCAN
+    11: TRAP_LOAD
+    12: TRAP_RUN
+    13: TRAP_MODE
+    14: TRAP_PUSH
+    15: TRAP_POP
+
+IN/OUT/VRAM/SCALE/RAND/RANB cases:
+0/1/2/3/4/5
+        
+        

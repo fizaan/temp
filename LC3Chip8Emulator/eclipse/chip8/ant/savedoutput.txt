@@ -1,0 +1,288 @@
+
+
+---
+Starting..
+---
+200 
+15 
+hey there what's up!
+10 
+7 
+5 
+6 
+7 
+12 
+HALT
+
+---
+Starting..
+---
+x in main: 500 
+x in test: -100 
+This is a dynamic string
+10 
+HALT
+
+---
+Starting..
+---
+str1
+hey there 2
+5 
+5 
+hey there 2
+5 
+5 
+hey there 2
+5 
+5 
+456
+11 
+13 
+dynamic string
+hey there 1
+HALT
+
+---
+Starting..
+---
+This is the main function
+It will always be called
+7 8 string main
+This is funcA
+9 10 string funcA
+This is funcB
+11 12 string funcB
+HALT
+
+---
+Starting..
+---
+7 
+9 
+3 
+1 
+7 
+9 
+HALT
+
+---
+Starting..
+---
+3 
+5 
+4 
+7 
+9 
+2 
+HALT
+
+---
+Starting..
+---
+3 
+5 
+4 
+7 
+9 
+2 
+HALT
+
+---
+Starting..
+---
+2 
+14 
+11 
+252 
+HALT
+
+---
+Starting..
+---
+10 
+HALT
+
+---
+Starting..
+---
+5 is >= than 2 
+HALT
+
+---
+Starting..
+---
+5 
+done
+HALT
+
+---
+Starting..
+---
+While-loop: 15...0: 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0 
+While-loop: 0...15: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+HALT
+
+---
+Starting..
+---
+Do-Loop func15To0: 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0 
+Do-Loop func0To15: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+HALT
+
+---
+Starting..
+---
+Do-Loop:
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+while-Loop:
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 
+HALT
+
+---
+Starting..
+---
+Fibonacci do-loop 0 - 233 (limit 255): 
+0 1 1 2 3 5 8 13 21 34 55 89 144 233 HALT
+
+---
+Starting..
+---
+Fibonacci while-loop 0 - 233 (limit 255): 
+0 1 1 2 3 5 8 13 21 34 55 89 144 233 HALT
+
+---
+Starting..
+---
+Testing global
+6 
+15 
+HALT
+
+---
+Starting..
+---
+Testing global
+80 
+HALT
+
+---
+Starting..
+---
+bug2.whileLoop.lct bug fix
+
+0 1 2 3 4 5 6 7 8 9 
+0 1 2 3 4 5 6 7 8 9 
+0 1 2 3 4 5 6 7 8 9 
+0 1 2 3 4 5 6 7 8 9 
+HALT
+
+---
+Starting..
+---
+5 4 3 2 1 0 1 2 3 4 5 HALT
+
+---
+Starting..
+---
+done
+Pop and calculate
+Pop and calculate
+Pop and calculate
+Pop and calculate
+Pop and calculate
+Pop and calculate
+Pop and calculate
+Pop and calculate
+Pop and calculate
+Pop and calculate
+Pop and calculate
+55 HALT
+
+---
+Starting..
+---
+done
+Pop and calculate
+Pop and calculate
+Pop and calculate
+Pop and calculate
+Pop and calculate
+120 HALT
+
+---
+Starting..
+---
+reg.lct: Print all register values
+10 0 202 0 0 0 12389 0 0 0 202 HALT
+
+---
+Starting..
+---
+divA.lct: division test
+8 2 12 1 HALT
+
+---
+Starting..
+---
+65 
+ABCDEFGHIJKLMNOPQRST
+A ?
+20 HALT
+
+---
+Starting..
+---
+12312 F
+HALT
+
+---
+Starting..
+---
+pointerBprint.lct: 
+FAIZISGREAT!
+HALT
+
+---
+Starting..
+---
+strcpy.lct: 
+This is the source str 
+123456789
+This is t
+HALT
+
+---
+Starting..
+---
+strswap.lct: 
+0123456789
+9876543210
+
+9876543210
+0123456789
+HALT
+
+---
+Starting..
+---
+str-reverse.lct: 
+
+0987654321
+HALT
+
+---
+Starting..
+---
+Nested Loop Test: 15e.nestedLoop.lct
+0 0 0 
+1 1 1 
+2 2 2 
+HALT
+
+---
+Starting..
+---
+Array Sort ASC  - arraysort.lct:
+20 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 
+HALT
