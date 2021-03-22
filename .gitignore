@@ -28,6 +28,8 @@ hs_err_pid*
 *.tar*
 *.obj
 *_asm*
+*.pdf
+*.bin
 bin/
 build/
 dist/
